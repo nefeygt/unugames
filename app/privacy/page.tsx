@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 /*
  * Written to match what this site actually does: no forms, no cookies, no analytics,
  * fonts and images self-hosted. If any of that changes, update this page.
- * TODO: name the hosting provider and the email provider once chosen, and add the
- * country / governing law once UnU Games is registered. Have the text reviewed before launch.
+ * TODO: add country / governing law once UnU Games is registered. Have the text reviewed before launch.
+ * Note: enabling an analytics product (e.g. Vercel Analytics) would make "no analytics" untrue.
  */
 export default function PrivacyPage() {
   const mail = <a href={`mailto:${studio.email}`}>{studio.email}</a>;
   return (
-    <LegalPage title="Privacy Policy" updated="October 12, 2026">
+    <LegalPage title="Privacy Policy" updated="October 13, 2026">
       <p>
         This policy explains what information {studio.legalName} (&ldquo;we&rdquo;, &ldquo;us&rdquo;) handles when you
         visit {studio.domain}. It covers this website only; each of our games will come with its own privacy policy.

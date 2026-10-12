@@ -4,7 +4,7 @@ import { studio } from "@/src/data/studio";
 export const dynamic = "force-static"; // required for `output: "export"`
 
 /** Bump when legal pages change. */
-const LEGAL_UPDATED = "2026-10-12";
+const LEGAL_UPDATED = "2026-10-13";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
