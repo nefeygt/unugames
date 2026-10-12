@@ -85,10 +85,6 @@ export function Hero() {
     <section id="top" aria-labelledby="hero-title" className="relative pb-20 pt-32 sm:pb-28 sm:pt-40">
       <div className="container grid items-center gap-14 md:grid-cols-[1.15fr_1fr]">
         <div>
-          <p className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-body">
-            <span className="h-2 w-2 rounded-[2px] bg-teal" aria-hidden />
-            Independent game studio · since {studio.founded.label}
-          </p>
           <h1 id="hero-title" className="mt-6 text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
             {studio.name}
           </h1>
