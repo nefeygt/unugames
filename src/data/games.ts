@@ -1,3 +1,4 @@
+import { glyphScreenshots, type Screenshot } from "./glyph-screenshots";
 import type { Platform } from "./studio";
 
 /**
@@ -14,10 +15,10 @@ export type Game = {
   status: string;
   platforms: Platform[];
   /**
-   * Optional real in-game capture placed in /public/games. Portrait phone shots
-   * look best (the card frames them like a phone). Omit it to show the CSS cover art.
+   * Optional real in-game captures (portrait phone shots in /public/games), shown in a
+   * carousel framed like a phone. One entry = a single image, no controls. Omit for CSS cover art.
    */
-  screenshot?: { src: string; width: number; height: number; alt: string };
+  screenshots?: Screenshot[];
   /**
    * Optional public store page. Only add it once the listing is public
    * (Google Play open testing or production); internal-testing links 404 for visitors.
@@ -36,11 +37,6 @@ export const games: Game[] = [
       { name: "Android", planned: true },
       { name: "iOS", planned: true },
     ],
-    screenshot: {
-      src: "/games/glyph.webp",
-      width: 540,
-      height: 1170,
-      alt: "Glyph gameplay: a glowing cyan rune shaped like an upward chevron is drawn on a dark page while two purple doodles carrying the same rune drift down from above.",
-    },
+    screenshots: glyphScreenshots,
   },
 ];

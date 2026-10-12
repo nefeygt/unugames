@@ -35,6 +35,12 @@ export function About() {
               <dt className="text-sm font-bold uppercase tracking-[0.12em] text-muted">Founded</dt>
               <dd className="mt-1 text-lg font-semibold text-ink">{studio.founded.label}</dd>
             </div>
+            <div>
+              <dt className="text-sm font-bold uppercase tracking-[0.12em] text-muted">Based in</dt>
+              <dd className="mt-1 text-lg font-semibold text-ink">
+                {studio.headquarters.city}, {studio.headquarters.country}
+              </dd>
+            </div>
             {firstGame && (
               <div>
                 <dt className="text-sm font-bold uppercase tracking-[0.12em] text-muted">First game</dt>

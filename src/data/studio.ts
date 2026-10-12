@@ -16,12 +16,16 @@ export const studio = {
   name: "UnU Games",
 
   /**
-   * Legal name used in the footer © line and the legal pages.
-   * UnU Games is not incorporated, so no Inc./LLC/Ltd. form is claimed.
-   * TODO: update (and add the country) once the studio is registered.
+   * Legal name used in the footer © line and the legal pages: "UnU Games" (confirmed).
+   * No Inc./LLC/Ltd. form is claimed.
+   * TODO: add the country of registration (and governing law in app/terms) once the studio is registered.
    */
   legalName: "UnU Games",
+  /** Country of registration — deliberately unset: the studio is not registered yet. */
   country: null as string | null,
+
+  /** Where the team is based. City + country only; never a street address. */
+  headquarters: { city: "Ankara", country: "Turkey", countryCode: "TR" },
 
   /** ISO "YYYY-MM" for JSON-LD, plus a human label. */
   founded: { iso: "2025-03", label: "March 2025" },
@@ -30,7 +34,7 @@ export const studio = {
   tagline: "Small, nostalgic games with a retro-arcade spirit.",
 
   /** Production URL. Used for canonical links, sitemap, Open Graph and JSON-LD. */
-  url: "https://unugames.studio",
+  url: "https://www.unugames.studio",
   domain: "unugames.studio",
 
   email: "hello@unugames.studio",
@@ -43,11 +47,13 @@ export const studio = {
     { name: "Xbox", planned: true },
   ] satisfies Platform[],
 
+  /**
+   * Company profiles. Shown in the header, contact section and footer (new tab,
+   * rel="noopener noreferrer") and listed in the JSON-LD `sameAs`. Set to null to hide one.
+   */
   social: {
-    // TODO: add the LinkedIn company URL once the page exists. Links stay hidden while null.
-    linkedin: null as string | null,
-    // TODO: add the Crunchbase URL once the profile exists. Links stay hidden while null.
-    crunchbase: null as string | null,
+    linkedin: "https://www.linkedin.com/company/unugames/" as string | null,
+    crunchbase: "https://www.crunchbase.com/organization/unu-games" as string | null,
   },
 } as const;
 

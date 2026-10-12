@@ -68,6 +68,7 @@ export function Footer() {
                 <li key={s.href}>
                   <a href={s.href} className={linkClass} target="_blank" rel="noopener noreferrer">
                     {s.label}
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </li>
               ))}

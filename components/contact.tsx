@@ -29,6 +29,7 @@ export function Contact() {
                 {social.map((s) => (
                   <a key={s.href} href={s.href} className="btn btn-secondary" target="_blank" rel="noopener noreferrer">
                     {s.label}
+                    <span className="sr-only"> (opens in a new tab)</span>
                     <ArrowUpRightIcon className="h-4 w-4" />
                   </a>
                 ))}

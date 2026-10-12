@@ -63,7 +63,16 @@ function organizationJsonLd() {
     email: studio.email,
     foundingDate: studio.founded.iso,
     description: studio.tagline,
-    // sameAs is omitted until LinkedIn / Crunchbase URLs exist.
+    // Where the team works (city only). Not a registered address: the studio is not registered yet.
+    location: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: studio.headquarters.city,
+        addressCountry: studio.headquarters.countryCode,
+      },
+    },
+    // Company profiles from studio.social (LinkedIn, Crunchbase); omitted if none are set.
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
