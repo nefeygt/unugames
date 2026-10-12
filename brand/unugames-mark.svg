@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="UnU Games">
+  <title>UnU Games</title>
+  <!-- UnU Games mark: glossy teal tile with a pixel "UnU" face (U eyes, n mouth).
+       Drawn on a 16-unit grid (1 cell = 4 units) so it stays pixel-exact at 16, 32 and 48 px. -->
+  <defs>
+    <linearGradient id="a-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b6662"/><stop offset="1" stop-color="#185b58"/>
+    </linearGradient>
+    <linearGradient id="a-gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".30"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(0 0) scale(1)">
+    <rect data-tile="" width="64" height="64" rx="16" fill="url(#a-tile)"/>
+    <path d="M6 18C6 9 10 4 19 4H45C54 4 58 9 58 18V19C40 15 24 15 6 21Z" fill="url(#a-gloss)"/>
+    <rect x="1.25" y="1.25" width="61.5" height="61.5" rx="14.75" fill="none" stroke="#ffffff" stroke-opacity=".22" stroke-width="2.5"/>
+    <path d="M12 20h4v4h-4ZM20 20h4v4h-4ZM40 20h4v4h-4ZM48 20h4v4h-4ZM12 24h4v4h-4ZM20 24h4v4h-4ZM40 24h4v4h-4ZM48 24h4v4h-4ZM12 28h4v4h-4ZM16 28h4v4h-4ZM20 28h4v4h-4ZM40 28h4v4h-4ZM44 28h4v4h-4ZM48 28h4v4h-4ZM24 36h4v4h-4ZM28 36h4v4h-4ZM32 36h4v4h-4ZM36 36h4v4h-4ZM24 40h4v4h-4ZM36 40h4v4h-4Z" fill="#f8faf8"/>
+  </g>
+</svg>

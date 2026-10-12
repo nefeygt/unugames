@@ -1,15 +1,19 @@
+import fs from "node:fs";
+import path from "node:path";
 import { ImageResponse } from "next/og";
-import { UNU_FACE as UNU } from "@/components/ui/pixel";
 import { games } from "@/src/data/games";
 import { studio } from "@/src/data/studio";
 
 /**
- * Social share card drawn with plain JSX/CSS and rendered to PNG at build time
- * by next/og (Satori). No photos: sky gradient, bubbles, glass panel, pixel face.
+ * Social share card, rendered to PNG at build time by next/og (Satori).
+ * The logo is the real brand/unugames-logo.svg embedded as a data URI (outlined paths,
+ * so it renders exactly like the file). Background: sky gradient, bubbles, glass panel.
  */
 export const ogSize = { width: 1200, height: 630 };
 
-const PX = 14; // size of one face pixel
+const LOGO_W = 640; // rendered width of the 658×124 lockup
+const logoSvg = fs.readFileSync(path.join(process.cwd(), "brand/unugames-logo.svg"), "utf8");
+const logoSrc = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString("base64")}`;
 
 export function renderOgImage() {
   const firstGame = games[0];
@@ -29,10 +33,10 @@ export function renderOgImage() {
       >
         {/* bubbles */}
         {[
-          { l: 70, t: 380, s: 120 },
-          { l: 990, t: 60, s: 150 },
-          { l: 1060, t: 430, s: 70 },
-          { l: 180, t: 70, s: 50 },
+          { l: 70, t: 400, s: 120 },
+          { l: 1000, t: 50, s: 150 },
+          { l: 1070, t: 440, s: 70 },
+          { l: 160, t: 60, s: 50 },
         ].map((b, i) => (
           <div
             key={i}
@@ -52,47 +56,23 @@ export function renderOgImage() {
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: 56,
-            padding: "56px 72px",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            padding: "64px 80px",
             borderRadius: 40,
             background: "rgba(255,255,255,0.6)",
             border: "2px solid rgba(255,255,255,0.95)",
             boxShadow: "0 30px 60px -30px rgba(23,50,63,0.35)",
           }}
         >
-          {/* logo tile with pixel face */}
-          <div
-            style={{
-              width: 220,
-              height: 220,
-              borderRadius: 52,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "linear-gradient(160deg, #e9f7fb 0%, #bfe3ea 55%, #9fd3d6 100%)",
-              border: "3px solid #8fbfc4",
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {UNU.map((row, y) => (
-                <div key={y} style={{ display: "flex" }}>
-                  {Array.from(row).map((c, x) => (
-                    <div key={x} style={{ width: PX, height: PX, background: c === "X" ? "#17323f" : "transparent" }} />
-                  ))}
-                </div>
-              ))}
+          {/* eslint-disable-next-line @next/next/no-img-element -- Satori only understands <img> */}
+          <img src={logoSrc} width={LOGO_W} height={Math.round((LOGO_W * 124) / 658)} alt="UnU Games" />
+          <div style={{ fontSize: 40, color: "#2c4a58", marginTop: 40 }}>{studio.tagline}</div>
+          {firstGame && (
+            <div style={{ display: "flex", marginTop: 18, fontSize: 28, color: "#1b6662" }}>
+              {`First game: ${firstGame.title} · ${firstGame.status.toLowerCase()}`}
             </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", maxWidth: 560 }}>
-            <div style={{ fontSize: 88, fontWeight: 800, color: "#17323f", letterSpacing: -2 }}>{studio.name}</div>
-            <div style={{ fontSize: 36, color: "#2c4a58", marginTop: 12, lineHeight: 1.3 }}>{studio.tagline}</div>
-            {firstGame && (
-              <div style={{ display: "flex", marginTop: 28, fontSize: 26, color: "#1b6662", fontWeight: 700 }}>
-                {`First game: ${firstGame.title} · ${firstGame.status.toLowerCase()}`}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     ),

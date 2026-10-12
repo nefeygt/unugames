@@ -6,7 +6,8 @@
     "dev": "next dev -p 3100",
     "build": "next build",
     "preview": "npx --yes serve@14.2.4 out -l 3200",
-    "lint": "next lint"
+    "lint": "next lint",
+    "brand:export": "node scripts/brand-export.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -15,6 +16,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/typography": "^0.5.20",
     "@types/node": "^22.0.0",
     "@types/react": "^19.3.0",

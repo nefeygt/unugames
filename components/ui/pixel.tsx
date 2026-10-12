@@ -40,14 +40,14 @@ export function PixelSprite({
 
 /* ---- Sprites ------------------------------------------------------------ */
 
-/** The "UnU" face: two U eyes and a small n mouth. Also used in the logo. */
+/** The "UnU" face from the logo mark (brand/unugames-mark.svg): two U eyes and an n mouth. */
 export const UNU_FACE = [
-  "X.X.....X.X",
-  "X.X.....X.X",
-  "XXX.....XXX",
-  "...........",
-  "....XXX....",
-  "....X.X....",
+  "X.X....X.X",
+  "X.X....X.X",
+  "XXX....XXX",
+  "..........",
+  "...XXXX...",
+  "...X..X...",
 ] as const;
 
 /** Console-menu cursor ▸ */

@@ -1,7 +1,7 @@
+import Image from "next/image";
 import { socialLinks, studio } from "@/src/data/studio";
 import { team } from "@/src/data/team";
 import { ArrowUpRightIcon, MailIcon } from "./ui/icons";
-import { PixelSprite, UNU_FACE } from "./ui/pixel";
 import { SectionHeading } from "./ui/section-heading";
 
 export function Contact() {
@@ -34,10 +34,9 @@ export function Contact() {
                 ))}
               </div>
             </div>
-            <div className="hidden justify-center md:flex" aria-hidden>
-              <div className="grid h-40 w-40 place-items-center rounded-[36px] bg-[linear-gradient(160deg,#e9f7fb,#bfe3ea_60%,#9fd3d6)] shadow-lift ring-1 ring-[#8fbfc4]">
-                <PixelSprite rows={UNU_FACE} palette={{ X: "#17323f" }} className="w-[58%]" />
-              </div>
+            <div className="hidden justify-center md:flex">
+              {/* Decorative: the mark repeats the logo already in the header. */}
+              <Image src="/brand/unugames-mark.svg" alt="" width={160} height={160} className="h-40 w-40 drop-shadow-[0_18px_30px_rgba(23,50,63,0.25)]" />
             </div>
           </div>
         </div>
