@@ -1,0 +1,90 @@
+import type { Metadata, Viewport } from "next";
+import { Nunito_Sans } from "next/font/google";
+import { games } from "@/src/data/games";
+import { socialLinks, studio } from "@/src/data/studio";
+import "./globals.css";
+
+// Self-hosted at build time by next/font: visitors never request Google's servers.
+const sans = Nunito_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-sans", display: "swap" });
+
+const firstGame = games[0];
+const description = firstGame
+  ? `${studio.name} is an independent game studio making ${studio.tagline.charAt(0).toLowerCase()}${studio.tagline.slice(1, -1)}. Our first game, ${firstGame.title}, is ${firstGame.status.toLowerCase()}.`
+  : `${studio.name} is an independent game studio making ${studio.tagline.charAt(0).toLowerCase()}${studio.tagline.slice(1)}`;
+
+/** Share card generated at build time by app/og.png/route.tsx. */
+const shareImage = { url: "/og.png", width: 1200, height: 630, alt: `${studio.name}: ${studio.tagline}`, type: "image/png" };
+
+export const metadata: Metadata = {
+  // All relative URLs below (canonical, OG image) resolve against this.
+  metadataBase: new URL(studio.url),
+  title: {
+    default: `${studio.name} — ${studio.tagline.replace(/\.$/, "")}`,
+    template: `%s · ${studio.name}`,
+  },
+  description,
+  applicationName: studio.name,
+  alternates: { canonical: "/" },
+  // app/icon.svg is picked up automatically; the PNG touch icon is a route (app/apple-touch-icon.png).
+  icons: { apple: "/apple-touch-icon.png" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: studio.name,
+    title: studio.name,
+    description,
+    locale: "en_US",
+    images: [shareImage],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: studio.name,
+    description,
+    images: [shareImage],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ddeef8",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+};
+
+/** schema.org Organization — built only from src/data/studio.ts. */
+function organizationJsonLd() {
+  const sameAs = socialLinks().map((s) => s.href);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: studio.name,
+    url: studio.url,
+    logo: `${studio.url}/icon.svg`,
+    email: studio.email,
+    foundingDate: studio.founded.iso,
+    description: studio.tagline,
+    // sameAs is omitted until LinkedIn / Crunchbase URLs exist.
+    ...(sameAs.length ? { sameAs } : {}),
+  };
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={sans.variable}>
+      <body className="min-h-screen overflow-x-hidden">
+        <a
+          href="#main"
+          className="btn btn-primary fixed left-4 top-4 z-[100] -translate-y-24 focus-visible:translate-y-0"
+        >
+          Skip to content
+        </a>
+        {children}
+        <script
+          type="application/ld+json"
+          // Escape "<" so the JSON can never close the script tag.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()).replace(/</g, "\\u003c") }}
+        />
+      </body>
+    </html>
+  );
+}

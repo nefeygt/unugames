@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Design tokens — calm, muted Frutiger Aero
+   --------------------------------------------------------------------------
+   WCAG contrast (computed; glass panels only lighten these backgrounds, so
+   the sky column is the worst case):
+     ink   on warm 12.8 · sky 11.3 · aqua 11.5 · mist 11.5 · silver 11.2
+     body  on warm  9.0 · sky  7.9 · aqua  8.1 · mist  8.1 · silver  7.9
+     muted on warm  5.9 · sky  5.2 · aqua  5.3 · mist  5.2 · silver  5.1
+     teal  on warm  6.4 · sky  5.7 · aqua  5.8 · mist  5.8 · silver  5.6
+     Worst painted backdrop (sky top #d4eaf6 / hills #d3e6d8): muted ≥ 5.1, teal ≥ 5.2
+     white on primary button, worst point incl. gloss: 4.7 (hover 5.3)
+     teal on teal-soft status chip: 5.5
+   --line is decorative only (2.3:1); interactive edges use ink/teal.
+   ========================================================================== */
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* surfaces */
+    --bg-warm: #f8faf8; /* warm white, page base */
+    --bg-sky: #ddeef8; /* soft sky blue */
+    --bg-aqua: #dcf2f0; /* pale aqua */
+    --bg-mist: #e4f0e8; /* misty green */
+    --bg-silver: #e7ebef; /* light silver-gray */
+    --glass: rgba(255, 255, 255, 0.55);
+    --glass-strong: rgba(255, 255, 255, 0.74);
+    --glass-border: rgba(255, 255, 255, 0.9);
+    --line: #c9d6dd;
+
+    /* text */
+    --ink: #17323f; /* headings */
+    --body: #2c4a58; /* paragraphs */
+    --muted: #4d6573; /* captions, meta */
+
+    /* the single accent */
+    --teal: #1b6662;
+    --teal-hover: #185b58;
+    --teal-soft: #d6eeeb;
+    --teal-btn: #175a57;
+
+    /* shape & light */
+    --radius-sm: 10px;
+    --radius: 18px;
+    --radius-lg: 28px;
+    --shadow-soft: 0 10px 30px -14px rgba(23, 50, 63, 0.22), 0 2px 6px -2px rgba(23, 50, 63, 0.08);
+    --shadow-lift: 0 18px 40px -16px rgba(23, 50, 63, 0.28), 0 3px 8px -3px rgba(23, 50, 63, 0.1);
+    --gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 55%);
+    --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 24px rgba(255, 255, 255, 0.4);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-warm font-sans text-body antialiased;
+    /* Fallback sky in case the decorative layer fails to paint. */
+    background-image: linear-gradient(180deg, var(--bg-sky), var(--bg-warm) 60%, var(--bg-mist));
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply text-ink;
+  }
+
+  ::selection {
+    background: var(--teal-soft);
+    color: var(--ink);
+  }
+
+  /* One focus style everywhere: ≥ 5.2:1 against the darkest backdrop. */
+  :focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+}
+
+@layer components {
+  /* Frosted panel: translucency, top gloss, soft inner glow. */
+  .glass {
+    position: relative;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-soft), var(--inner-glow);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+  }
+  /* Gloss sheen across the top of a panel. Purely decorative. */
+  .gloss::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px 50% 1px;
+    border-radius: inherit;
+    border-bottom-left-radius: 40% 12px;
+    border-bottom-right-radius: 40% 12px;
+    background: var(--gloss);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  /* Soft glossy primary button. Gloss stays faint so white text keeps ≥ 4.5:1 everywhere. */
+  .btn {
+    @apply relative inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-6 py-2.5 text-[0.95rem] font-semibold transition-[transform,box-shadow,background-color] duration-200;
+  }
+  .btn-primary {
+    color: #fff;
+    background: linear-gradient(180deg, var(--teal), var(--teal-btn));
+    border: 1px solid #134d4a;
+    box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    inset: 1px 10px 55% 10px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(180deg, var(--teal-hover), #134a48);
+    box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    @apply glass text-ink;
+  }
+  .btn-secondary:hover {
+    background: var(--glass-strong);
+    transform: translateY(-1px);
+  }
+
+  /* Old-console-menu cursor: a pixel ▸ that appears on hover/focus. */
+  .menu-item {
+    @apply relative inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-semibold text-body transition-colors;
+  }
+  .menu-item .menu-cursor {
+    @apply opacity-0 transition-[opacity,transform] duration-200;
+    transform: translateX(-3px);
+  }
+  .menu-item:hover,
+  .menu-item:focus-visible {
+    @apply text-ink;
+    background: var(--glass-strong);
+  }
+  .menu-item:hover .menu-cursor,
+  .menu-item:focus-visible .menu-cursor {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Ambient motion — very slow, and fully off for prefers-reduced-motion.
+   -------------------------------------------------------------------------- */
+@keyframes bubble-rise {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--drift, 0px), -115vh, 0);
+  }
+}
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.animate-bubble {
+  animation: bubble-rise var(--dur, 90s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+.animate-float {
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
