@@ -66,8 +66,10 @@ export function Navbar() {
 
           <div className="hidden items-center gap-1 md:flex">
             {social.map((s) => (
-              <a key={s.href} href={s.href} className="menu-item text-sm" target="_blank" rel="noopener noreferrer">
+              // Shown from lg up; between md and lg the header has no room (they stay in contact + footer).
+              <a key={s.href} href={s.href} className="menu-item hidden text-sm lg:inline-flex" target="_blank" rel="noopener noreferrer">
                 {s.label}
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             ))}
             <a href={`mailto:${studio.email}`} className="btn btn-primary min-h-[40px] px-4 py-2 text-sm">
@@ -105,6 +107,7 @@ export function Navbar() {
                 <a href={s.href} className="menu-item flex w-full py-3 text-lg" target="_blank" rel="noopener noreferrer">
                   <PixelCursor className="menu-cursor text-teal" />
                   {s.label}
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
             ))}

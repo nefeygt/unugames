@@ -1,27 +1,14 @@
-import Image from "next/image";
 import { games, type Game } from "@/src/data/games";
 import { platformLabel } from "@/src/data/studio";
+import { ScreenshotCarousel } from "./screenshot-carousel";
 import { ArrowUpRightIcon } from "./ui/icons";
 import { PixelSparkle } from "./ui/pixel";
 import { SectionHeading } from "./ui/section-heading";
 
-/** Real screenshot framed like a phone; falls back to soft CSS cover art. */
+/** Real screenshots in a phone-framed carousel; falls back to soft CSS cover art. */
 function GameMedia({ game }: { game: Game }) {
-  if (game.screenshot) {
-    return (
-      <div className="relative mx-auto w-[min(62vw,200px)] shrink-0 rounded-[30px] bg-[linear-gradient(160deg,#ffffff,#d9e1e7)] p-2 shadow-lift ring-1 ring-[#c4cfd7]">
-        <Image
-          src={game.screenshot.src}
-          width={game.screenshot.width}
-          height={game.screenshot.height}
-          alt={game.screenshot.alt}
-          sizes="200px"
-          className="h-auto w-full rounded-[23px]"
-        />
-        {/* glass reflection over the "phone" */}
-        <span className="pointer-events-none absolute inset-2 rounded-[23px] bg-[linear-gradient(125deg,rgba(255,255,255,0.22),rgba(255,255,255,0)_38%)]" aria-hidden />
-      </div>
-    );
+  if (game.screenshots?.length) {
+    return <ScreenshotCarousel screenshots={game.screenshots} label={`${game.title} screenshots`} />;
   }
   return (
     <div className="relative grid h-48 w-full place-items-center overflow-hidden rounded-[22px] bg-[linear-gradient(160deg,#e8f6f9,#cfe8e6)] ring-1 ring-white" aria-hidden>

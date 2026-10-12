@@ -21,10 +21,13 @@ If a value is `null` or a list is empty, whatever depends on it is hidden — no
 
 ### Studio facts — `src/data/studio.ts`
 
-Name, legal name, founding date, tagline, domain, email, planned platforms, and social links.
+Name, legal name, founding date, headquarters city, tagline, domain, email, planned platforms, and
+company profiles.
 
-- **LinkedIn / Crunchbase:** set `social.linkedin` / `social.crunchbase`. The links then appear in the
-  header, contact section and footer, and are added to the JSON-LD `sameAs` automatically.
+- **LinkedIn / Crunchbase:** `social.linkedin` / `social.crunchbase` appear in the header, contact
+  section and footer (new tab) and in the JSON-LD `sameAs`. Set one to `null` to hide it.
+- **Headquarters:** `headquarters` is the city the team works from (Ankara, Turkey). It is shown in
+  About and as the JSON-LD `location`. It is not a registered address; never add a street address.
 - **Legal entity:** UnU Games is not incorporated, so `legalName` is plain "UnU Games". When it is
   registered, update `legalName` and `country` (it feeds the footer © line and the legal pages).
 - **Domain:** change `url` and `domain` once; canonical links, sitemap, robots.txt, Open Graph and
@@ -42,21 +45,25 @@ One object per game. Adding a game = adding one entry:
   description: "One honest line about the game.",
   status: "In development",            // real status, no percentages
   platforms: [{ name: "Android", planned: true }],
-  screenshot: {                        // optional, real in-game capture in /public/games
-    src: "/games/my-game.webp", width: 540, height: 1170, alt: "What the screenshot shows",
-  },
+  screenshots: [                       // optional, real in-game captures in /public/games
+    { src: "/games/my-game.webp", alt: "What the screenshot shows", caption: "Short caption" },
+  ],
   storeUrl: "https://play.google.com/…", // optional, only once the listing is public
 }
 ```
 
-Screenshots: export a portrait capture to WebP (≈ 540 px wide is plenty) and put it in `public/games/`.
-Without a screenshot the card shows simple CSS cover art. Google Play *internal testing* links only
+Screenshots: export a portrait phone capture (9:19.5) to WebP (≈ 540 px wide is plenty) and put it in
+`public/games/`. Several screenshots become a carousel (buttons, dots, ←/→ keys, swipe, screen-reader
+announcements; autoplay is off). One screenshot shows on its own with no controls. Without any, the
+card shows simple CSS cover art. Glyph's list lives in `src/data/glyph-screenshots.ts`. Google Play *internal testing* links only
 work for listed testers, so add `storeUrl` once Glyph is in open testing or production.
 
 ### Team — `src/data/team.ts`
 
-`{ name, role }` per person — nothing else. Avatars are generated pixel art from the name (no photos).
-The Team section and its nav link disappear if the list is empty.
+`{ name, role, linkedin?, blurb? }` per person. No photos and no emails: avatars are pixel art built
+from the initials. A LinkedIn icon appears on a card only when `linkedin` is set (add it only with the
+person's consent). `blurb` is an optional one-liner about their focus (current ones are launch drafts; each person can rewrite theirs). The Team section and its nav
+link disappear if the list is empty.
 
 ### Legal pages — `app/privacy/page.tsx`, `app/terms/page.tsx`
 
