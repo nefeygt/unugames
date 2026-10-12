@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Screenshot } from "@/src/data/glyph-screenshots";
 import { cn } from "@/lib/utils";
-import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "./ui/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "./ui/icons";
 
 /** True when the visitor asked for reduced motion (updates live if they change it). */
 function usePrefersReducedMotion() {
@@ -19,81 +19,88 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
-const SWIPE_PX = 40;
+const wrap = (i: number, n: number) => ((i % n) + n) % n;
 
 /**
- * Accessible screenshot carousel framed like a phone.
- * - Prev/next buttons, dot buttons, ←/→ keys (when the carousel has focus), touch swipe.
- * - role="region" + aria-roledescription="carousel"; a polite live region announces "Image 2 of 5".
- * - One screenshot: renders the image only, no controls.
- * - Autoplay is off by default, never runs under prefers-reduced-motion, pauses on hover/focus,
- *   and gets a visible pause button when enabled (WCAG 2.2.2).
- * - The box has a fixed aspect ratio, so nothing shifts while images load; only the first is eager.
+ * Screenshot gallery: phone-framed slides on a horizontal scroll-snap track.
+ * - The current slide is centred; neighbours peek in at the sides (dimmed) to hint there is more.
+ * - Swipe / trackpad scroll come for free from the native scroller; buttons and ←/→ keys loop at the ends.
+ * - Controls are ≥ 44×44 px. Dots sit under the frame; a polite live region announces "Image 2 of 6".
+ * - Images: the first loads eagerly, the next is preloaded, the rest only once you get near them.
+ *   Every slide has a fixed aspect-ratio box (object-fit: contain), so nothing shifts or crops.
+ * - No autoplay. Smooth scrolling is turned off under prefers-reduced-motion.
  */
-export function ScreenshotCarousel({
-  screenshots,
-  label,
-  autoplay = false,
-  intervalMs = 6000,
-}: {
-  screenshots: Screenshot[];
-  /** Accessible name, e.g. "Glyph screenshots". */
-  label: string;
-  autoplay?: boolean;
-  intervalMs?: number;
-}) {
+export function ScreenshotCarousel({ screenshots, label }: { screenshots: Screenshot[]; label: string }) {
   const count = screenshots.length;
   const multiple = count > 1;
   const [index, setIndex] = useState(0);
-  const [announce, setAnnounce] = useState(false); // stay quiet until the visitor interacts
-  const [paused, setPaused] = useState(false);
-  const [hovering, setHovering] = useState(false);
+  const [announce, setAnnounce] = useState(false); // quiet until the visitor interacts
+  // Slides allowed to render their image: current ± 1 (wrapping), accumulated as the visitor moves.
+  const [loaded, setLoaded] = useState<Set<number>>(() => new Set([0, wrap(1, count)]));
   const reducedMotion = usePrefersReducedMotion();
-  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const settle = useRef(0);
+  const indexRef = useRef(0);
+  indexRef.current = index;
 
-  const go = useCallback(
-    (next: number) => {
-      setIndex(((next % count) + count) % count);
+  useEffect(() => {
+    setLoaded((prev) => {
+      const next = new Set(prev);
+      [index - 1, index, index + 1].forEach((i) => next.add(wrap(i, count)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [index, count]);
+
+  /** Scroll the track so slide i is centred (horizontal only; the page never jumps). */
+  const goTo = useCallback(
+    (i: number) => {
+      const track = trackRef.current;
+      const slide = slideRefs.current[wrap(i, count)];
+      if (!track || !slide) return;
+      // Update state right away so buttons/keys/dots never depend on scroll events firing.
+      setIndex(wrap(i, count));
       setAnnounce(true);
+      track.scrollTo({
+        left: slide.offsetLeft - (track.clientWidth - slide.offsetWidth) / 2,
+        behavior: reducedMotion ? "auto" : "smooth",
+      });
     },
-    [count],
+    [count, reducedMotion],
   );
 
-  const autoplayActive = autoplay && multiple && !reducedMotion && !paused && !hovering;
-  useEffect(() => {
-    if (!autoplayActive) return;
-    const id = window.setInterval(() => setIndex((i) => (i + 1) % count), intervalMs);
-    return () => window.clearInterval(id);
-  }, [autoplayActive, count, intervalMs]);
+  /** Swipes / trackpad: follow whichever slide is closest to the centre once the scroll settles. */
+  function onScroll() {
+    window.clearTimeout(settle.current);
+    settle.current = window.setTimeout(() => {
+      const track = trackRef.current;
+      if (!track) return;
+      const centre = track.scrollLeft + track.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      slideRefs.current.forEach((s, i) => {
+        if (!s) return;
+        const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - centre);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      });
+      if (best !== indexRef.current) {
+        setIndex(best);
+        setAnnounce(true);
+      }
+    }, 80);
+  }
+  useEffect(() => () => window.clearTimeout(settle.current), []);
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
     if (!multiple) return;
-    if (e.key === "ArrowRight") {
+    const keys: Record<string, number> = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: count - 1 };
+    if (e.key in keys) {
       e.preventDefault();
-      go(index + 1);
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      go(index - 1);
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      go(0);
-    } else if (e.key === "End") {
-      e.preventDefault();
-      go(count - 1);
+      goTo(keys[e.key]);
     }
-  }
-
-  function onPointerDown(e: PointerEvent<HTMLDivElement>) {
-    if (e.pointerType === "mouse") return; // mouse users have the buttons
-    pointerStart.current = { x: e.clientX, y: e.clientY };
-  }
-  function onPointerUp(e: PointerEvent<HTMLDivElement>) {
-    const start = pointerStart.current;
-    pointerStart.current = null;
-    if (!start || !multiple) return;
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
-    if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) go(index + (dx < 0 ? 1 : -1));
   }
 
   const current = screenshots[index];
@@ -105,95 +112,110 @@ export function ScreenshotCarousel({
       aria-label={label}
       tabIndex={multiple ? 0 : undefined}
       onKeyDown={onKeyDown}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      onFocusCapture={() => setHovering(true)}
-      onBlurCapture={() => setHovering(false)}
-      className="mx-auto flex w-[min(66vw,240px)] shrink-0 flex-col items-center rounded-[34px]"
+      className="w-full min-w-0 rounded-[28px]"
     >
-      {/* Phone frame */}
-      <div className="relative w-full rounded-[30px] bg-[linear-gradient(160deg,#ffffff,#d9e1e7)] p-2 shadow-lift ring-1 ring-[#c4cfd7]">
+      <div className="relative">
+        {/* Track: slides are a fixed width; side padding lets the first/last slide centre too. */}
         <div
-          className="relative aspect-[540/1170] w-full touch-pan-y select-none overflow-hidden rounded-[23px] bg-[#0b0b10]"
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => (pointerStart.current = null)}
+          ref={trackRef}
+          onScroll={multiple ? onScroll : undefined}
+          tabIndex={-1}
+          className={cn(
+            "relative flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            multiple && "-my-4 snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain py-7 sm:gap-6",
+            multiple ? "px-[calc(50%_-_var(--slide)_/_2)]" : "justify-center py-3",
+            "[--slide:min(74vw,300px)] lg:[--slide:340px]",
+          )}
         >
           {screenshots.map((s, i) => {
             const active = i === index;
             return (
               <div
                 key={s.src}
+                ref={(el) => {
+                  slideRefs.current[i] = el;
+                }}
                 role={multiple ? "group" : undefined}
                 aria-roledescription={multiple ? "slide" : undefined}
                 aria-label={multiple ? `${i + 1} of ${count}` : undefined}
-                aria-hidden={!active}
-                inert={!active}
+                aria-hidden={multiple && !active ? true : undefined}
                 className={cn(
-                  "absolute inset-0 transition-opacity duration-500 ease-out",
-                  active ? "opacity-100" : "opacity-0",
+                  "w-[var(--slide)] shrink-0 snap-center transition-[opacity,transform] duration-300 ease-out",
+                  multiple && !active && "scale-[0.92] opacity-45",
                 )}
               >
-                <Image
-                  src={s.src}
-                  alt={s.alt}
-                  fill
-                  sizes="240px"
-                  priority={i === 0}
-                  loading={i === 0 ? undefined : "lazy"}
-                  draggable={false}
-                  className="object-contain"
-                />
+                {/* Phone frame */}
+                <div className="rounded-[34px] bg-[linear-gradient(160deg,#ffffff,#d9e1e7)] p-2.5 shadow-lift ring-1 ring-[#c4cfd7]">
+                  <div className="relative aspect-[540/1170] w-full overflow-hidden rounded-[26px] bg-[#0b0b10]">
+                    {loaded.has(i) && (
+                      <Image
+                        src={s.src}
+                        alt={s.alt}
+                        fill
+                        sizes="(min-width: 1024px) 340px, 300px"
+                        priority={i === 0}
+                        draggable={false}
+                        className="select-none object-contain"
+                      />
+                    )}
+                    <span
+                      className="pointer-events-none absolute inset-0 rounded-[26px] bg-[linear-gradient(125deg,rgba(255,255,255,0.16),rgba(255,255,255,0)_38%)]"
+                      aria-hidden
+                    />
+                  </div>
+                </div>
               </div>
             );
           })}
-          {/* glass reflection over the "phone" */}
-          <span
-            className="pointer-events-none absolute inset-0 rounded-[23px] bg-[linear-gradient(125deg,rgba(255,255,255,0.18),rgba(255,255,255,0)_38%)]"
-            aria-hidden
-          />
         </div>
-      </div>
 
-      <p className="mt-3 min-h-[2.75rem] text-pretty text-center text-sm leading-snug text-body">{current.caption}</p>
-
-      {multiple && (
-        <div className="mt-2 flex items-center gap-1">
-          <button type="button" onClick={() => go(index - 1)} aria-label="Previous screenshot" className="carousel-btn">
-            <ChevronLeftIcon className="h-5 w-5" />
-          </button>
-          <div className="flex items-center">
-            {screenshots.map((s, i) => (
-              <button
-                key={s.src}
-                type="button"
-                onClick={() => go(i)}
-                aria-label={`Show image ${i + 1} of ${count}`}
-                aria-current={i === index ? "true" : undefined}
-                className="group grid h-7 w-6 place-items-center rounded-full"
-              >
-                <span
-                  className={cn(
-                    "block h-2 rounded-full border-[1.5px] transition-[width,background-color] duration-300",
-                    i === index ? "w-5 border-teal bg-teal" : "w-2 border-muted bg-transparent group-hover:bg-muted",
-                  )}
-                />
-              </button>
-            ))}
-          </div>
-          <button type="button" onClick={() => go(index + 1)} aria-label="Next screenshot" className="carousel-btn">
-            <ChevronRightIcon className="h-5 w-5" />
-          </button>
-          {autoplay && !reducedMotion && (
+        {multiple && (
+          <>
             <button
               type="button"
-              onClick={() => setPaused((p) => !p)}
-              aria-label={paused ? "Play slideshow" : "Pause slideshow"}
-              className="carousel-btn ml-1"
+              onClick={() => goTo(index - 1)}
+              aria-label="Previous screenshot"
+              className="carousel-btn absolute left-0 top-1/2 -translate-y-1/2 sm:left-2 !bg-white/90 shadow-soft hover:!bg-white"
             >
-              {paused ? <PlayIcon className="h-4 w-4" /> : <PauseIcon className="h-4 w-4" />}
+              <ChevronLeftIcon className="h-5 w-5" />
             </button>
-          )}
+            <button
+              type="button"
+              onClick={() => goTo(index + 1)}
+              aria-label="Next screenshot"
+              className="carousel-btn absolute right-0 top-1/2 -translate-y-1/2 sm:right-2 !bg-white/90 shadow-soft hover:!bg-white"
+            >
+              <ChevronRightIcon className="h-5 w-5" />
+            </button>
+          </>
+        )}
+      </div>
+
+      {current.caption && (
+        <p className="mx-auto mt-2 min-h-[2.75rem] max-w-[22rem] text-pretty text-center text-[0.95rem] leading-snug text-body">
+          {current.caption}
+        </p>
+      )}
+
+      {multiple && (
+        <div className="mt-1 flex justify-center">
+          {screenshots.map((s, i) => (
+            <button
+              key={s.src}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Show image ${i + 1} of ${count}`}
+              aria-current={i === index ? "true" : undefined}
+              className="group grid h-11 w-11 place-items-center rounded-full"
+            >
+              <span
+                className={cn(
+                  "block h-2.5 rounded-full border-[1.5px] transition-[width,background-color] duration-300",
+                  i === index ? "w-6 border-teal bg-teal" : "w-2.5 border-muted bg-transparent group-hover:bg-muted",
+                )}
+              />
+            </button>
+          ))}
         </div>
       )}
 

@@ -160,9 +160,9 @@
     transform: translateX(0);
   }
 
-  /* Round glass control (carousel prev/next/pause). 40px target, ink icon. */
+  /* Round glass control (carousel prev/next). 44px touch target, ink icon. */
   .carousel-btn {
-    @apply glass inline-grid h-10 w-10 place-items-center rounded-full text-ink transition-[background-color,transform] duration-200;
+    @apply glass inline-grid h-11 w-11 place-items-center rounded-full text-ink transition-[background-color,transform] duration-200;
   }
   .carousel-btn:hover {
     background: var(--glass-strong);

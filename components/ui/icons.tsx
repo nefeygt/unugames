@@ -59,18 +59,6 @@ export const ChevronRightIcon = ({ className }: P) => (
   </svg>
 );
 
-export const PauseIcon = ({ className }: P) => (
-  <svg viewBox="0 0 24 24" className={className} {...base}>
-    <path d="M9 5v14M15 5v14" />
-  </svg>
-);
-
-export const PlayIcon = ({ className }: P) => (
-  <svg viewBox="0 0 24 24" className={className} {...base}>
-    <path d="M7 5v14l12-7Z" />
-  </svg>
-);
-
 /** LinkedIn "in" glyph, simplified (filled). */
 export const LinkedInIcon = ({ className }: P) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden focusable="false">

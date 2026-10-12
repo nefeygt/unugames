@@ -22,11 +22,12 @@ function GameCard({ game }: { game: Game }) {
     <article
       id={`game-${game.slug}`}
       aria-labelledby={`game-${game.slug}-title`}
-      className="glass gloss rounded-lg p-5 sm:p-8"
+      className="glass gloss rounded-lg px-4 py-6 sm:p-8 lg:p-10"
     >
-      <div className="relative flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-10">
+      {/* Mobile/tablet: gallery on top, text below. Desktop: gallery and text side by side, centred. */}
+      <div className="relative grid items-center gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12">
         <GameMedia game={game} />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 px-1 sm:px-0">
           <p className="inline-flex items-center gap-2 rounded-full bg-teal-soft px-3 py-1 text-sm font-bold text-teal">
             <span className="h-1.5 w-1.5 rounded-[1px] bg-current" aria-hidden />
             {game.status}
